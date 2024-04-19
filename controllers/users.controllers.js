@@ -61,7 +61,7 @@ const updateUser = async(userobjectIdString , newuser_id)=>{
         usertobeUpdated.user_id = newuser_id;
         const updatedUser = await usertobeUpdated.save();
         console.log("User updation successful")
-        return(updatedUser._id.toString());
+        return(updatedUser);
     }
      
 }

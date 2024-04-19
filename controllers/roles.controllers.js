@@ -58,7 +58,7 @@ const updateRole = async(roleobjectIdString , newrole_id)=>{
         roletobeUpdated.role_id = newrole_id;
         const updatedRole = await roletobeUpdated.save();
         console.log("Role updation successful");
-        return(updatedRole._id.toString());
+        return(updateRole);
     }
      
 }

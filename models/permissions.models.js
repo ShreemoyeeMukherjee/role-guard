@@ -5,16 +5,19 @@ const permissionSchema =  new mongoose.Schema({
         type:String,
     },
     "days":[{
-        type:Number,
+        type:Boolean,
     }],
     "start_time":{
-        type:Date,
+        type:String,
     },
     "end_time":{
-        type:Date,
+        type:String,
     },
-    "exceptions":{
-        type:Object,
+    "exceptions_start_time":{
+        type:String,
+    },
+    "exceptions_end_time":{
+        type:String,
     }
 },
 {

@@ -61,7 +61,7 @@ const updateResource = async(resourceobjectIdString , newresource_id)=>{
         resourcetobeUpdated.user_id = newresource_id;
         const updatedResource = await resourcetobeUpdated.save();
         console.log("Resource updation successful")
-        return(updatedResource._id.toString());
+        return(updatedResource);
     }
      
 }
