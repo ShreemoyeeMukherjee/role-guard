@@ -1,3 +1,4 @@
+import { isValidObjectId } from "mongoose"
 import mongoose from "mongoose"
 import {User} from "../models/users.models.js"
 import {error} from  "../utils/error.js"
@@ -32,7 +33,11 @@ const createUser = async(user_id)=>{
 //     throw new error("Connection not established")
 // }
 const getUser = async(userobjectIdString)=>{
-    
+
+     if(!isValidObjectId(userobjectIdString))
+     {
+        throw new error("Please provide a valid MongoDB Object ID")
+     }
     const requiredUser = await User.findById(userobjectIdString);
     if(!requiredUser)
     {
@@ -42,6 +47,10 @@ const getUser = async(userobjectIdString)=>{
     return(requiredUser.user_id);
 }
 const updateUser = async(userobjectIdString , newuser_id)=>{
+    if(!isValidObjectId(userobjectIdString))
+    {
+       throw new error("Please provide a valid MongoDB Object ID")
+    }
     const usertobeUpdated = await User.findById(userobjectIdString);
     if(!usertobeUpdated)
     {
@@ -51,9 +60,25 @@ const updateUser = async(userobjectIdString , newuser_id)=>{
     {
         usertobeUpdated.user_id = newuser_id;
         const updatedUser = await usertobeUpdated.save();
+        console.log("User updation successful")
         return(updatedUser._id.toString());
     }
      
 }
+const deleteUser = async(userobjectIdString)=>
+        
+{
 
-export{createUser, getUser,updateUser };
+    if(!isValidObjectId(userobjectIdString))
+    {
+       throw new error("Please provide a valid MongoDB Object ID")
+    }
+    const usertoBeDeleted = await User.findByIdAndDelete(userobjectIdString);
+      if(!usertoBeDeleted)
+      {
+        throw new error("User not found");
+      }
+      console.log("User deletion successful");
+}
+
+export{createUser, getUser,updateUser, deleteUser };
