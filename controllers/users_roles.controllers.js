@@ -95,7 +95,7 @@ const delete_all_users_for_roles = async(usersarray)=>{
         {
             throw new error("User role deleted");
         }
-        console.log("Deletion successful")l
+        console.log("Deletion successful");
     }
 
     
