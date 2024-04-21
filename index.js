@@ -1,10 +1,11 @@
 
 import mongoose from "mongoose"
 import {connectDB} from "./db/index.js"
-import{createUser , getUser,updateUser,deleteUser} from "../package/controllers/users.controllers.js"
-import {createRole , getRole , updateRole , deleteRole} from "../package/controllers/roles.controllers.js"
-import{createResource, getResource,updateResource, deleteResource } from "../package/controllers/resources.controllers.js"
-import{createPermission, getPermission,updatePermission,deletePermission} from "../package/controllers/permissions.controllers.js"
+import{createUser , getUser,deleteUser} from "../package/controllers/users.controllers.js"
+import {createRole , getRole , deleteRole} from "../package/controllers/roles.controllers.js"
+import{createResource, getResource, deleteResource } from "../package/controllers/resources.controllers.js"
+import{createPermission, getPermission,deletePermission} from "../package/controllers/permissions.controllers.js"
+import{createUserRole,delete_all_roles_for_users,delete_all_users_for_roles,delete_all_users_roles} from "../package/controllers/users_roles.controllers.js"
 import dotenv from "dotenv"
 import {error} from "../package/utils/error.js"
 dotenv.config();
@@ -22,10 +23,11 @@ catch(err)
 }
 
 
-export{createUser ,getUser,updateUser,deleteUser};
-export{createRole,getRole,updateRole,deleteRole};
-export{createResource, getResource,updateResource, deleteResource };
-export{createPermission, getPermission,updatePermission, deletePermission};
+export{createUser ,getUser,deleteUser};
+export{createRole,getRole,deleteRole};
+export{createResource, getResource,deleteResource };
+export{createPermission, getPermission, deletePermission};
+export{createUserRole,delete_all_roles_for_users,delete_all_users_for_roles,delete_all_users_roles}
 
 
 

@@ -46,25 +46,25 @@ const getResource = async(resourceobjectIdString)=>{
     
     return(requiredResource.resource_id);
 }
-const updateResource = async(resourceobjectIdString , newresource_id)=>{
-    if(!isValidObjectId(resourceobjectIdString))
-    {
-       throw new error("Please provide a valid MongoDB Object ID")
-    }
-    const resourcetobeUpdated = await Resource.findById(resourceobjectIdString);
-    if(!resourcetobeUpdated)
-    {
-        throw new error("Resource not found");
-    }
-    else
-    {
-        resourcetobeUpdated.user_id = newresource_id;
-        const updatedResource = await resourcetobeUpdated.save();
-        console.log("Resource updation successful")
-        return(updatedResource);
-    }
+// const updateResource = async(resourceobjectIdString , newresource_id)=>{
+//     if(!isValidObjectId(resourceobjectIdString))
+//     {
+//        throw new error("Please provide a valid MongoDB Object ID")
+//     }
+//     const resourcetobeUpdated = await Resource.findById(resourceobjectIdString);
+//     if(!resourcetobeUpdated)
+//     {
+//         throw new error("Resource not found");
+//     }
+//     else
+//     {
+//         resourcetobeUpdated.user_id = newresource_id;
+//         const updatedResource = await resourcetobeUpdated.save();
+//         console.log("Resource updation successful")
+//         return(updatedResource);
+//     }
      
-}
+// }
 const deleteResource= async(resourceobjectIdString)=>
         
 {
@@ -81,4 +81,4 @@ const deleteResource= async(resourceobjectIdString)=>
       console.log("Resource deletion successful");
 }
 
-export{createResource, getResource,updateResource, deleteResource };
+export{createResource, getResource, deleteResource };

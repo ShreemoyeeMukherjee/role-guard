@@ -99,7 +99,7 @@ const updatePermission = async(permissionobjectIdString,updationObject)=>{
 
     }
     const permissionToBeUpdated = await Permission.findById(permissionobjectIdString);
-    const permission_id = updationObject.permission_id;
+    //const permission_id = updationObject.permission_id;
     const days = updationObject.days;
     const start_time = updationObject.start_time;
     const end_time = updationObject.end_time;
@@ -109,11 +109,11 @@ const updatePermission = async(permissionobjectIdString,updationObject)=>{
     {
         throw new error("Permission not found");
     }
-    if(permission_id)
-    {
-        permissionToBeUpdated.permission_id = permission_id;
+    // if(permission_id)
+    // {
+    //     permissionToBeUpdated.permission_id = permission_id;
 
-    }
+    // }
     if(days)
     {
         if(days.length != 7)

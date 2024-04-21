@@ -1,23 +1,20 @@
 import mongoose from "mongoose"
-import User_role from "../models/user_roles.models.js"
+import {User_role} from "../models/user_roles.models.js"
 import { isValidObjectId } from "mongoose"
 import {error} from "../utils/error.js"
-const createUserRole = async(userId, roleId)=>{
-    if(!userId || !roleId)
+import { getValidObjectId } from "../utils/getObjectId.js"
+const createUserRole = async(userobjectId, roleobjectId)=>{
+    if(!userobjectId || !roleobjectId)
     {
-        throw new error("Please provide userId and roleId");
+        throw new error("Please provide both userobjectId and roleobjectId");
     }
-    if(!typeof(userId) == 'string')
-    {
-        throw new error("Please provide a valid userId");
-    }
-    if(!typeof(roleId) == 'string')
-    {
-        throw new error("Please provide a valid roleId");
-    }
-    const newUserRole  = await User_role({
-        user:userId,
-        role:roleId,
+     if(!isValidObjectId(userobjectId) || !isValidObjectId(roleobjectId))
+     {
+        throw new error("Please provide valid  userobjectId , roleobjectId")
+     }
+    const newUserRole  = await User_role.create({
+        user:userobjectId,
+        role:roleobjectId,
     })
     if(!newUserRole)
     {
@@ -25,44 +22,85 @@ const createUserRole = async(userId, roleId)=>{
     }
     return(newUserRole._id);
 }
-const updateUserRole = async(userroleObjectIdString ,updationObject)=>{
-    if(!isValidObjectId)
+
+
+
+
+
+
+
+const delete_all_roles_for_users = async(rolesarray)=>{
+    const rolesobjectidarray = [];
+    var i = 0;
+    for( i = 0;i<rolesarray.length;i++)
     {
-        throw new error("Please provide a valid  objectId string")
+        rolesobjectidarray.push(getValidObjectId(rolesarray[i]));
+
     }
-    const userRoleToBeUpdated = await User_role.findById(userroleObjectIdString);
-    if(!userRoleToBeUpdated)
-    {
-        throw new error("User_role not found")
-    }
-    const user = updationObject.user;
-    const role = updationObject.role;
-    if(user)
-    {
-        userRoleToBeUpdated.user   = user;
-    }
-    if(role)
-    {
-        userRoleToBeUpdated.role  = role;
-    }
-    const updatedRole = await userRoleToBeUpdated.save();
-    return(updatedRole);
-
-
-
-
-
+    
+    const deleted_roles  = await User_role.deleteMany(
+        {
+        "role":{$in:rolesobjectidarray}
+        }
+    )
+    return(deleted_roles.deletedCount);
 }
-const deleteUser_role   = async(userroleObjectIdString)=>{
-    if(!isValidObjectId(userroleObjectIdString))
+const delete_all_users_for_roles = async(usersarray)=>{
+    const usersobjectidarray = [];
+    var i = 0;
+    for( i = 0;i<usersarray.length;i++)
     {
-       throw new error("Please provide a valid MongoDB Object ID");
+        usersobjectidarray.push(getValidObjectId(usersarray[i]));
+
     }
-    const userroletoBeDeleted = await User_role.findByIdAndDelete(userroleObjectIdString);
-      if(!userroletoBeDeleted)
-      {
-        throw new error("User not found");
-      }
-      console.log("User deletion successful");
+    const deleted_users  = await User_role.deleteMany(
+        {
+        
+        "role":{$in:usersobjectidarray},
+        }
+    )
+    return(deleted_users.deletedCount);
 }
-export{createUserRole,updateUserRole,deleteUser_role};
+
+// const delete_all_users_roles = async(usersarray,rolesarray)=>{
+//     const usersobjectidarray  = [];
+//     const rolesobjectidarray =  [];
+//     var i = 0;
+//     for( i = 0;i<usersarray.length;i++)
+//     {
+//         usersobjectidarray.push(getValidObjectId(usersarray[i]));
+
+//     }
+//     for( i = 0;i<rolesarray.length;i++)
+//     {
+//         rolesobjectidarray.push(getValidObjectId(rolesarray[i]));
+
+
+//     }
+//     const deleted_users_roles = await User_role.deleteMany({
+//         "role":{$in:usersobjectidarray},
+//         "user":{$in:rolesobjectidarray}
+
+//     })
+//     return(deleted_users_roles.deletedCount);
+// }
+    const delete_user_role  = async(userobjectidstring , roleobjectidstring)=>{
+        const userobjectid = getValidObjectId(userobjectidstring);
+        const roleobjectid = getValidObjectId(roleobjectidstring);
+        const delete_user_role = await User_role.deleteOne({
+            user:userobjectidstring,
+            role:roleobjectidstring,
+        })
+        if(!delete_user_role)
+        {
+            throw new error("User role deleted");
+        }
+        console.log("Deletion successful")l
+    }
+
+    
+
+
+
+
+export{createUserRole,delete_all_roles_for_users,delete_all_users_for_roles,delete_all_users_roles};

@@ -43,25 +43,25 @@ const getRole = async(roleobjectIdString)=>{
     
     return(requiredRole.role_id);
 }
-const updateRole = async(roleobjectIdString , newrole_id)=>{
-    if(!isValidObjectId(roleobjectIdString))
-    {
-       throw new error("Please provide a valid MongoDB Object ID")
-    }
-    const roletobeUpdated = await Role.findById(roleobjectIdString);
-    if(!roletobeUpdated)
-    {
-        throw new error("Role not found");
-    }
-    else
-    {
-        roletobeUpdated.role_id = newrole_id;
-        const updatedRole = await roletobeUpdated.save();
-        console.log("Role updation successful");
-        return(updateRole);
-    }
+// const updateRole = async(roleobjectIdString , newrole_id)=>{
+//     if(!isValidObjectId(roleobjectIdString))
+//     {
+//        throw new error("Please provide a valid MongoDB Object ID")
+//     }
+//     const roletobeUpdated = await Role.findById(roleobjectIdString);
+//     if(!roletobeUpdated)
+//     {
+//         throw new error("Role not found");
+//     }
+//     else
+//     {
+//         roletobeUpdated.role_id = newrole_id;
+//         const updatedRole = await roletobeUpdated.save();
+//         console.log("Role updation successful");
+//         return(updateRole);
+//     }
      
-}
+// }
 const deleteRole = async(roleobjectIdString)=>
         
 {
@@ -78,4 +78,4 @@ const deleteRole = async(roleobjectIdString)=>
       console.log("Role deletion successful");
 }
 
-export{createRole, getRole,updateRole, deleteRole };
+export{createRole, getRole, deleteRole };

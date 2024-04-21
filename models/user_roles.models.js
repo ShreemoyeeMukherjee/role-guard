@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
-const user_roleSchema = new mongoose.model({
+const user_roleSchema = new mongoose.Schema({
     "user":{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User"
@@ -12,5 +12,5 @@ const user_roleSchema = new mongoose.model({
     
 })
 const User_role = mongoose.model("User_role",user_roleSchema);
-User_role.plugin(mongooseAggregatePaginate);
+user_roleSchema.plugin(mongooseAggregatePaginate);
 export{User_role};

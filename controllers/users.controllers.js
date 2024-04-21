@@ -46,25 +46,25 @@ const getUser = async(userobjectIdString)=>{
     
     return(requiredUser.user_id);
 }
-const updateUser = async(userobjectIdString , newuser_id)=>{
-    if(!isValidObjectId(userobjectIdString))
-    {
-       throw new error("Please provide a valid MongoDB Object ID")
-    }
-    const usertobeUpdated = await User.findById(userobjectIdString);
-    if(!usertobeUpdated)
-    {
-        throw new error("User not found");
-    }
-    else
-    {
-        usertobeUpdated.user_id = newuser_id;
-        const updatedUser = await usertobeUpdated.save();
-        console.log("User updation successful")
-        return(updatedUser);
-    }
+// const updateUser = async(userobjectIdString , newuser_id)=>{
+//     if(!isValidObjectId(userobjectIdString))
+//     {
+//        throw new error("Please provide a valid MongoDB Object ID")
+//     }
+//     const usertobeUpdated = await User.findById(userobjectIdString);
+//     if(!usertobeUpdated)
+//     {
+//         throw new error("User not found");
+//     }
+//     else
+//     {
+//         usertobeUpdated.user_id = newuser_id;
+//         const updatedUser = await usertobeUpdated.save();
+//         console.log("User updation successful")
+//         return(updatedUser);
+//     }
      
-}
+// }
 const deleteUser = async(userobjectIdString)=>
         
 {
@@ -81,4 +81,4 @@ const deleteUser = async(userobjectIdString)=>
       console.log("User deletion successful");
 }
 
-export{createUser, getUser,updateUser, deleteUser };
+export{createUser, getUser, deleteUser };
