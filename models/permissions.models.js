@@ -1,8 +1,14 @@
 import mongoose from "mongoose"
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2"
 const permissionSchema =  new mongoose.Schema({
-    "permission_id":{
+    "role_id":{
         type:String,
+        ref:"Role"
+
+    },
+    "resource_id":{
+        type:String,
+        ref:"Resource"
     },
     "days":[{
         type:Boolean,
@@ -13,13 +19,17 @@ const permissionSchema =  new mongoose.Schema({
     "end_time":{
         type:String,
     },
+    "max_duration":{
+        type:Number,
+    },
     "exceptions_start_time":{
         type:String,
     },
     "exceptions_end_time":{
         type:String,
-    }
+    },
 },
+
 {
     timestamps:true,
 })
