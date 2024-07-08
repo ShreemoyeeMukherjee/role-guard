@@ -4,6 +4,9 @@ const  userSchema = new mongoose.Schema({
     "user_id":{
         type:String,
     },
+    "isSuspended":{
+        type:Boolean,
+    }
     
 },
 {

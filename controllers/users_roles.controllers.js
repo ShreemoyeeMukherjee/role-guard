@@ -1,106 +1,125 @@
 import mongoose from "mongoose"
 import {User_role} from "../models/user_roles.models.js"
 import { isValidObjectId } from "mongoose"
+import {User} from "../models/users.models.js"
 import {error} from "../utils/error.js"
 import { getValidObjectId } from "../utils/getObjectId.js"
-const createUserRole = async(userobjectId, roleobjectId)=>{
-    if(!userobjectId || !roleobjectId)
+import {Key} from "../models/keys.models.js"
+const createUserRole = async(key, user_id, role_id)=>{
+    const existingKey = await Key.findOne({key:key});
+    if(!existingKey)
     {
-        throw new error("Please provide both userobjectId and roleobjectId");
+        throw new error("Key not found");
     }
-     if(!isValidObjectId(userobjectId) || !isValidObjectId(roleobjectId))
-     {
-        throw new error("Please provide valid  userobjectId , roleobjectId")
-     }
-    const newUserRole  = await User_role.create({
-        user:userobjectId,
-        role:roleobjectId,
+    const createduserRole = await User_role.create({
+        key:key,
+        user_id:user_id,
+        role_id:role_id,
     })
-    if(!newUserRole)
-    {
-        throw new error("User role not created")
-    }
-    return(newUserRole._id);
-}
-
-
-
-
-
-
-
-const delete_all_roles_for_users = async(rolesarray)=>{
-    const rolesobjectidarray = [];
-    var i = 0;
-    for( i = 0;i<rolesarray.length;i++)
-    {
-        rolesobjectidarray.push(getValidObjectId(rolesarray[i]));
-
-    }
-    
-    const deleted_roles  = await User_role.deleteMany(
+    if(createduserRole)
         {
-        "role":{$in:rolesobjectidarray}
+            throw new error("User role creation failed");
         }
-    )
-    return(deleted_roles.deletedCount);
+    return("User role created successfully");
 }
-const delete_all_users_for_roles = async(usersarray)=>{
-    const usersobjectidarray = [];
-    var i = 0;
-    for( i = 0;i<usersarray.length;i++)
+const get_all_roles_for_user = async(key , user_id)=>
+{
+    const existingKey = await Key.findOne({key:key});
+    if(!existingKey)
     {
-        usersobjectidarray.push(getValidObjectId(usersarray[i]));
-
+        throw new error("Key not found");
     }
-    const deleted_users  = await User_role.deleteMany(
+    const roles_for_user = await User_role.aggregate([
         {
+            $match:{
+                key:key,
+            }
+        },
+        {
+              $match:{
+                user_id:user_id,
+              }
+        },
+        {
+            $project:{
+                user_id:1,
+                role_id:1,
+            }
+        }
         
-        "role":{$in:usersobjectidarray},
-        }
-    )
-    return(deleted_users.deletedCount);
+    ])
+    return(roles_for_user);
 }
-
-// const delete_all_users_roles = async(usersarray,rolesarray)=>{
-//     const usersobjectidarray  = [];
-//     const rolesobjectidarray =  [];
-//     var i = 0;
-//     for( i = 0;i<usersarray.length;i++)
-//     {
-//         usersobjectidarray.push(getValidObjectId(usersarray[i]));
-
-//     }
-//     for( i = 0;i<rolesarray.length;i++)
-//     {
-//         rolesobjectidarray.push(getValidObjectId(rolesarray[i]));
-
-
-//     }
-//     const deleted_users_roles = await User_role.deleteMany({
-//         "role":{$in:usersobjectidarray},
-//         "user":{$in:rolesobjectidarray}
-
-//     })
-//     return(deleted_users_roles.deletedCount);
-// }
-    const delete_user_role  = async(userobjectidstring , roleobjectidstring)=>{
-        const userobjectid = getValidObjectId(userobjectidstring);
-        const roleobjectid = getValidObjectId(roleobjectidstring);
-        const delete_user_role = await User_role.deleteOne({
-            user:userobjectidstring,
-            role:roleobjectidstring,
-        })
-        if(!delete_user_role)
-        {
-            throw new error("User role deleted");
-        }
-        console.log("Deletion successful");
+const  get_all_users_for_role = async(key, role_id)=>{
+    const existingKey = await Key.findOne({key:key});
+    if(!existingKey)
+    {
+        throw new error("Key not found");
     }
+    const users_for_role = await User_role.aggregate([
+        {
+            $match:{
+                key:key,
+            }
+        },
+        {
+            $match:{
+                 role_id:role_id,
+            }
+        },
+        {
+            lookup:{
+                from:"users",
+                localField:"user_id",
+                foreignField:"user_id",
+                as:"user_details",
+            }
+        },
+        {
+            $unwind:{
+                path:"$user_details"
+            }
+        },
+        {
+            $project:{
+                role_id:1,
+                user_id:1,
+                user_details:1,
+            }
+        }
+    ])
+    return(users_for_role);
+}
+const deleteUser_role = async(key , user_id, role_id)=>{
+    const existingKey = await Key.findOne({key:key});
+    if(!existingKey)
+    {
+        throw new error("Key not found");
+    }
+    const deleteduser_role = await User_role.deleteOne({
+        key:key,
+        user_id:user_id,
+        role_id:role_id,
+    })
+    if(!deleteduser_role)
+        {
+           throw new error("User role deleted succesfully ")  
+        }
+    return("User deletetion successful");
+
+}
+export{createUserRole,get_all_roles_for_user,get_all_users_for_role,deleteUser_role };
+
+
+
+
+
+
+
+
 
     
 
 
 
 
-export{createUserRole,delete_all_roles_for_users,delete_all_users_for_roles,delete_all_users_roles};
