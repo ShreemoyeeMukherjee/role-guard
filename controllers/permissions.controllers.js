@@ -3,19 +3,34 @@ import { isValidObjectId } from "mongoose";
 import {Permission} from "../models/permissions.models.js"
 import {error} from "../utils/error.js"
 import { isValidTime } from "../utils/isValidTime.js";
-const  createPermission = async(creationObject)=>{
-    var final_exceptions_start_time = "";
-    var final_exceptions_end_time = "";
+import {Key} from "../models/keys.models.js"
+import {Role} from "../models/roles.models.js"
+import{Resource} from "../models/resources.models.js"
+import { validateKey } from "../utils/keyValidation.js";
+
+const  createPermission = async(key,creationObject)=>{
+    
+    const result = validateKey(key);
+
+    if(result == false)
+        {
+            throw new error("Invalid key");
+        }
+    if(!permission_id)
+        {
+            throw new error("Please provide permission id")
+        }
     const permission_id = creationObject.permission_id;
     const days = creationObject.days;
     const start_time = creationObject.start_time;
     const end_time = creationObject.end_time;
-    const exceptions_start_time = creationObject.start_time;
-    const exceptions_end_time = creationObject.end_time;
+    const maxduration = creationObject.maxduration;
+     const role_id = creationObject.role;
+     const resource_id= creationObject.resource
 
-    if(! permission_id ||  !days || !start_time || !end_time)
+    if(! permission_id ||  !days || !start_time || !end_time|| !role_id||!resource_id)
     {
-        throw new error("Please provide permission id , days , start_time ,end_time")
+        throw new error("Please provide permission id , days , start_time ,end_time,role_id,resource_id")
     }
     if(typeof(permission_id) !=  "string")
     {
@@ -28,7 +43,8 @@ const  createPermission = async(creationObject)=>{
         throw new error("Please provide a days array of size 7")
       }
       const firstElement = days[0];
-      
+      // since array contains elements of same type , checking first 
+      // element would suffice
       if(typeof(firstElement)  != 'boolean') 
       {
         throw new error("Please provide an boolean array")
@@ -38,26 +54,27 @@ const  createPermission = async(creationObject)=>{
     {
         throw new error("Please enter  valid start and end_time")
     }
-    if((exceptions_start_time && !exceptions_end_time) || (!exceptions_start_time && exceptions_end_time))
-    {
-        throw new error("Please enter both exceptions_start_time and exceptions_end_time")
-    }
-    if(!exceptions_start_time && !exceptions_end_time)
-    {
-         final_exceptions_start_time = start_time ;
-        // lets this be the exceptiontime in case of no exception
-        final_exceptions_end_time = end_time;
-    }
-    if(exceptions_start_time && exceptions_end_time)
-    {
-        if(!isValidTime(exceptions_start_time, exceptions_end_time))
-    {
-        throw new error("Please enter  valid  exceptions_start_time and exceptions_end_time")
-    }
-    final_exceptions_start_time = start_time ;
-    
-    final_exceptions_end_time = end_time;
-    }
+    // check whether the  particular resource or role exists in the database or not
+    const resource = await Resource.findOne({
+        $and:[
+            {key:key},
+            {resource_id:resource_id}
+        ]
+    })
+    if(!resource)
+        {
+            throw new error("User doesnot exist");
+        }
+    const role = await Role.findOne({
+            $and:[
+                {key:key},
+                {role_id:role_id}
+            ]
+        })
+        if(!role)
+            {
+                throw new error("Role doesnot exist");
+            }
 
     
     
@@ -66,54 +83,84 @@ const  createPermission = async(creationObject)=>{
         days:days,
         start_time:start_time,
         end_time:end_time,
-        exceptions_start_time :final_exceptions_start_time,
-        exceptions_end_time:final_exceptions_end_time
+        role_id:role_id,
+        resource_id:resource_id,
 
     })
     if(!newPermission)
     {
         throw new error("Permission is not created");
     }
-    return(newPermission._id.toString());
+    newPermission._id = undefined;
+    return(newPermission);
 
 
 }
-const getPermission = async(permissionobjectIdString)=>{
-    if(!isValidObjectId(permissionobjectIdString))
-     {
-        throw new error("Please provide a valid MongoDB Object ID")
-     }
-    const requiredPermission = await Permission.findById(permissionobjectIdString);
+const getPermission = async(key,permission_id)=>{
+    const result = validateKey(key);
+
+    if(result == false)
+        {
+            throw new error("Invalid key");
+        }
+    if(!permission_id)
+        {
+            throw new error("Please provide permission id")
+        }
+    if(typeof(permission_id)!= string)
+    {
+        throw new error("Please provide permission id as string")
+    }
+    const requiredPermission = await Permission.findOne(
+        {
+            $and:[
+                {key:key},
+                {permission_id:permission_id},
+            ]
+        }
+    );
     if(!requiredPermission)
-    {
-        throw new error("User not found");
-    }
-    
-    return(requiredPermission);
-
-}
-const updatePermission = async(permissionobjectIdString,updationObject)=>{
-    if(!isValidObjectId(permissionobjectIdString))
-    {
-        throw new error("Please provide a valid objectid string")
-
-    }
-    const permissionToBeUpdated = await Permission.findById(permissionobjectIdString);
-    //const permission_id = updationObject.permission_id;
-    const days = updationObject.days;
-    const start_time = updationObject.start_time;
-    const end_time = updationObject.end_time;
-    const exceptions_start_time = updationObject.start_time;
-    const exceptions_end_time = updationObject.end_time;
-    if(!permissionToBeUpdated)
     {
         throw new error("Permission not found");
     }
-    // if(permission_id)
-    // {
-    //     permissionToBeUpdated.permission_id = permission_id;
+    requiredPermission._id=  undefined;
+    return(requiredPermission);
 
-    // }
+}
+const updatePermission = async(key,permission_id,updationObject)=>{
+   
+    
+    
+    const result = validateKey(key);
+
+    if(result == false)
+        {
+            throw new error("Invalid key");
+        }
+    if(!permission_id)
+        {
+            throw new error("Please provide permission id")
+        }
+    if(typeof(permission_id)!= string)
+    {
+        throw new error("Please provide permission id as string")
+    }
+    const permissionToBeUpdated  = await Permission.findOne({
+        $and:[
+            {key:key},
+            {permission_id:permission_id},
+        ]
+    })
+    if(!permissionToBeUpdated)
+        {
+            throw new error("Permission not found");
+        }
+    const days = updationObject.days;
+    const start_time = updationObject.start_time;
+    const end_time = updationObject.end_time;
+    const role_id = updationObject.role_id;
+    const resource_id = updationObject.resource_id;
+   
     if(days)
     {
         if(days.length != 7)
@@ -127,6 +174,7 @@ const updatePermission = async(permissionobjectIdString,updationObject)=>{
         }
         permissionToBeUpdated.days = days;
     }
+    // both are to be updated
     if(start_time && end_time)
     {
         if(!isValidTime(start_time ,end_time))
@@ -136,6 +184,9 @@ const updatePermission = async(permissionobjectIdString,updationObject)=>{
         permissionToBeUpdated.start_time =  start_time;
         permissionToBeUpdated.end_time = end_time;
     }
+    // the next two if conditions is for any one of them is to be updated
+    // in that case the other one is to be retreived and the validity is to be 
+    // checked
     if(start_time)
     {
         const saved_end_time = permissionToBeUpdated.end_time;
@@ -154,58 +205,74 @@ const updatePermission = async(permissionobjectIdString,updationObject)=>{
         }
         permissionToBeUpdated.end_time = end_time;
     }
-    if(exceptions_start_time && exceptions_end_time)
+    // for role_id and resource_id we first check whether the input is valid or not
+    // then we check a particular role or resource exists in our database or not
+    //only if all consditons are satisfied, updation is allowed
+  if(role_id)
     {
-        if(!isValidTime(exceptions_start_time,exceptions_end_time))
-        {
-            throw new error("Please provide valid start_time , end_time");
-        }
-        permissionToBeUpdated.exceptions_start_time = exceptions_start_time;
-        permissionToBeUpdated.exceptions_end_time = exceptions_end_time;
+        if(typeof(role_id)!=string)
+            {
+                throw new error("Please provide role_id as string")
+            }
+        const role = await Role.findOne({
+            $and:[
+                {key:key},
+                {role_id:role_id},
+            ]
+        })
+        if(!role)
+            {
+                throw new error("Role not found ")
+            }
+            permissionToBeUpdated.role_id=  role_id;
     }
-    if(exceptions_start_time)
-    {
-        const saved_exceptions_end_time = permissionToBeUpdated.exceptions_end_time;
-        if(!saved_exceptions_end_time)
+    if(resource_id)
         {
-            throw new error("Please provide a exceptions_end_time as well")
+            if(typeof(resource_id)!=string)
+                {
+                    throw new error("Please provide role_id as string")
+                }
+            const resource = await Resource.findOne({
+                $and:[
+                    {key:key},
+                    {resource_id:resource_id},
+                ]
+            })
+            if(!resource)
+                {
+                    throw new error("Resource not found ")
+                }
+                permissionToBeUpdated.resource_id= resource_id;
         }
-        if(!isValidTime(exceptions_start_time , saved_exceptions_end_time))
-        {
-            throw new error("Please provide valid end_time ")
-        }
-        permissionToBeUpdated.exceptions_start_time = exceptions_start_time;
-    }
-    if(exceptions_end_time)
-    {
-        const saved_exceptions_start_time = permissionToBeUpdated.exceptions_start_time;
-        if(!saved_exceptions_start_time)
-        {
-            throw new error("Please provide a exceptions_start_time as well")
-        }
-        if(!isValidTime(saved_exceptions_start_time , exceptions_end_time))
-        {
-            throw new error("Please provide valid end_time ")
-        }
-        permissionToBeUpdated.exceptions_end_time = exceptions_end_time;
-    }
+    
     const updatedPermission = await permissionToBeUpdated.save();
     console.log("Permission updation successful")
     
     return(updatedPermission);
 }
-const deletePermission = async(permissionobjectIdString)=>
+const deletePermission = async(key , permission_id)=>
         
 {
+    const result = validateKey(key);
 
-    if(!isValidObjectId(permissionobjectIdString))
-    {
-       throw new error("Please provide a valid MongoDB Object ID")
-    }
-    const permissiontoBeDeleted = await Permission.findByIdAndDelete(userobjectIdString);
+    if(result == false)
+        {
+            throw new error("Invalid key");
+        }
+    if(!permission_id)
+        {
+            throw new error("Please provide permission id")
+        }
+    const existingKey = await Key.findOne({key:key});
+    
+    if(!existingKey)
+        {
+            throw new error("Key not found")
+        }
+    const permissiontoBeDeleted = await Permission.deleteOne({key:key,permission_id:permission_id});
       if(!permissiontoBeDeleted)
       {
-        throw new error("User not found");
+        throw new error("Permission not found");
       }
       console.log("Permission deletion successful");
 }

@@ -1,4 +1,6 @@
 import{isValid , parse} from "date-fns";
+// checks whether the time provided in permission is valid or not
+
 function isValidTime( start_time , end_time) 
 {
     try{
@@ -13,6 +15,7 @@ function isValidTime( start_time , end_time)
         return(false);
         
     }
+    // both start time and end time are appended to a Date object for ease of comparison
     const startDate = new Date(`2000-01-01T${start_time}`);
     const endDate = new Date(`2000-01-01T${end_time}`);
     

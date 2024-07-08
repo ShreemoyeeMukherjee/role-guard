@@ -13,6 +13,10 @@ const createUser = async(key , user_id)=>{
         {
             throw new error("Key doesnot exist");
         }
+        if(typeof(user_id)!= string)
+            {
+                throw new error("Please provide user id as string")
+            }
         
    
     
@@ -38,6 +42,10 @@ const getUser = async(key ,user_id)=>{
     {
         throw new error("Key not found")
     }
+    if(typeof(user_id)!= string)
+        {
+            throw new error("Please provide user id as string")
+        }
     const requiredUser = await User.findOne({
         $and:[
             {key:key},
@@ -48,8 +56,8 @@ const getUser = async(key ,user_id)=>{
     {
         throw new error("User not found");
     }
-    
-    return(requiredUser.user_id);
+    requiredUser._id = undefined;
+    return(requiredUser);
 }
 
 const deleteUser = async(key , user_id)=>
@@ -61,21 +69,30 @@ const deleteUser = async(key , user_id)=>
         {
             throw new error("Key not found");
         }
+        if(typeof(user_id)!= string)
+            {
+                throw new error("Please provide user id as string")
+            }
     const deletedUser = await  User.deleteOne({key:key , user_id:user_id});
     if(!deletedUser)
         {
-            throw new error("Deletion failed");
+            throw new error(" User Deletion failed");
         }
-    return("Deletion successfully")
+    return(" User Deletion successfully")
 
 
 }
+// suspend a user if malpractices found
 const suspendUser = async(key,user_id)=>{
     const existingKey = await Key.findOne({key:key});
     if(!existingKey)
     {
         throw new error("Key not found")
     }
+    if(typeof(user_id)!= string)
+        {
+            throw new error("Please provide user id as string")
+        }
     const requiredUser = await User.findOne({
         $and:[
             {key:key},
@@ -97,12 +114,17 @@ const suspendUser = async(key,user_id)=>{
 
 
 }
+// unsuspend a user
 const unsuspendUser = async(key,user_id)=>{
     const existingKey = await Key.findOne({key:key});
     if(!existingKey)
     {
         throw new error("Key not found")
     }
+    if(typeof(user_id)!= string)
+        {
+            throw new error("Please provide user id as string")
+        }
     const requiredUser = await User.findOne({
         $and:[
             {key:key},

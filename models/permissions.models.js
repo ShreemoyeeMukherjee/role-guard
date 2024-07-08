@@ -22,12 +22,7 @@ const permissionSchema =  new mongoose.Schema({
     "max_duration":{
         type:Number,
     },
-    "exceptions_start_time":{
-        type:String,
-    },
-    "exceptions_end_time":{
-        type:String,
-    },
+    
 },
 
 {

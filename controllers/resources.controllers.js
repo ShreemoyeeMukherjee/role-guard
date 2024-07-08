@@ -2,83 +2,84 @@ import { isValidObjectId } from "mongoose"
 import mongoose from "mongoose"
 import {Resource} from "../models/resources.models.js"
 import {error} from  "../utils/error.js"
+import {Key} from "../models/keys.models.js"
 
 
+//this particular controller handles creation , deletion , retrieval of resource
+// Updation not required as only resource_id is stored  
+
+
+const createResource = async(key ,resource_id)=>{
+    const existingKey = await Key.findOne({key:key});
+    if(!existingKey)
+        {
+            throw new error("Key not found")
+        }
+        if(typeof(resource_id)!= string)
+            {
+                throw new error("Please provide resource id as string")
+            }
+    const createdresouce = await Resource.create({
+        key:key,
+        resource_id:resource_id,
+
+    })
+    if(!createdresouce)
+        {
+            throw new error("Resource creation failed")
+        }
+    return("Resource creation successful")
+
+        
     
 
-const createResource = async(resource_id)=>{
-        
-    if(typeof(resource_id)!= 'string') // type must always be in string
-    {
-        
-        throw new error("Please enter a valid string as resource_id");
-    }
-    else
-    {
-        const newResource = await Resource.create({
-            resource_id :resource_id,
-        })
-        
-        if(!newResource)
-        {
-            throw new error("New Resource creation failed");
-        }
-        const newResourceobjectIdString = newResource._id.toString();
-        return(newResourceobjectIdString);
-    }
-
 }
-// }
-// else{
-//     throw new error("Connection not established")
-// }
-const getResource = async(resourceobjectIdString)=>{
 
-     if(!isValidObjectId(resourceobjectIdString))
-     {
-        throw new error("Please provide a valid MongoDB Object ID")
-     }
-    const requiredResource = await Resource.findById(resourceobjectIdString);
+const getResource = async(key, resource_id)=>{
+    const existingKey = await Key.findOne({key:key});
+    if(!existingKey)
+    {
+        throw new error("Key not found")
+    }
+    if(typeof(resource_id)!= string)
+        {
+            throw new error("Please provide resource id as string")
+        }
+    const requiredResource = await Resource.findOne({
+        $and:[
+            {key:key},
+            {resource_id:resource_id},
+        ]
+    })
     if(!requiredResource)
     {
         throw new error("Resource not found");
     }
-    
-    return(requiredResource.resource_id);
-}
-// const updateResource = async(resourceobjectIdString , newresource_id)=>{
-//     if(!isValidObjectId(resourceobjectIdString))
-//     {
-//        throw new error("Please provide a valid MongoDB Object ID")
-//     }
-//     const resourcetobeUpdated = await Resource.findById(resourceobjectIdString);
-//     if(!resourcetobeUpdated)
-//     {
-//         throw new error("Resource not found");
-//     }
-//     else
-//     {
-//         resourcetobeUpdated.user_id = newresource_id;
-//         const updatedResource = await resourcetobeUpdated.save();
-//         console.log("Resource updation successful")
-//         return(updatedResource);
-//     }
+    requiredResource._id = undefined;
+    return(requiredResource);
      
-// }
-const deleteResource= async(resourceobjectIdString)=>
+}
+
+const deleteResource= async(key, resource_id)=>
         
 {
 
-    if(!isValidObjectId(resourceobjectIdString))
-    {
-       throw new error("Please provide a valid MongoDB Object ID")
-    }
-    const resourcetoBeDeleted = await Resource.findByIdAndDelete(resourceobjectIdString);
-      if(!resourcetoBeDeleted)
-      {
-        throw new error("User not found");
-      }
-      console.log("Resource deletion successful");
+    const existingKey = await Key.findOne({key:key});
+    if(!existingKey)
+        {
+            throw new error("Key not found");
+        }
+    
+        if(typeof(resource_id)!= string)
+            {
+                throw new error("Please provide resource id as string")
+            }
+    const deletedResource = await  Resource.deleteOne({key:key , resource_id:resource_id});
+    if(!deletedResource)
+        {
+            throw new error("Resource Deletion failed");
+        }
+    return("Resource Deletion successfully")
 }
 
 export{createResource, getResource, deleteResource };
