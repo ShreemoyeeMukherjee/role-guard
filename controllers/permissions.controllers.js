@@ -16,15 +16,12 @@ const  createPermission = async(key,creationObject)=>{
         {
             throw new error("Invalid key");
         }
-    if(!permission_id)
-        {
-            throw new error("Please provide permission id")
-        }
+   
     const permission_id = creationObject.permission_id;
     const days = creationObject.days;
     const start_time = creationObject.start_time;
     const end_time = creationObject.end_time;
-    const maxduration = creationObject.maxduration;
+    const max_duration = creationObject.max_duration;
      const role_id = creationObject.role;
      const resource_id= creationObject.resource
 
@@ -85,6 +82,7 @@ const  createPermission = async(key,creationObject)=>{
         end_time:end_time,
         role_id:role_id,
         resource_id:resource_id,
+        max_duration:max_duration,
 
     })
     if(!newPermission)
@@ -160,6 +158,7 @@ const updatePermission = async(key,permission_id,updationObject)=>{
     const end_time = updationObject.end_time;
     const role_id = updationObject.role_id;
     const resource_id = updationObject.resource_id;
+    const max_duration = updationObject.max_duration;
    
     if(days)
     {
@@ -167,6 +166,7 @@ const updatePermission = async(key,permission_id,updationObject)=>{
         {
             throw new error("Please provide an array of length 7")
         }
+        // since array contains element of same datatypes , checking the first element would suffice
         const firstElement = days[0];
         if(typeof(firstElement) != 'boolean')
         {
@@ -244,6 +244,10 @@ const updatePermission = async(key,permission_id,updationObject)=>{
                 }
                 permissionToBeUpdated.resource_id= resource_id;
         }
+    if(max_duration)
+        {
+            permissionToBeUpdated.max_duration = max_duration;
+        }
     
     const updatedPermission = await permissionToBeUpdated.save();
     console.log("Permission updation successful")
@@ -263,18 +267,15 @@ const deletePermission = async(key , permission_id)=>
         {
             throw new error("Please provide permission id")
         }
-    const existingKey = await Key.findOne({key:key});
     
-    if(!existingKey)
-        {
-            throw new error("Key not found")
-        }
+    
+   
     const permissiontoBeDeleted = await Permission.deleteOne({key:key,permission_id:permission_id});
       if(!permissiontoBeDeleted)
       {
         throw new error("Permission not found");
       }
-      console.log("Permission deletion successful");
+      return("Permission deletion successful");
 }
 
 

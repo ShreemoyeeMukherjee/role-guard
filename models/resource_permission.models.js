@@ -1,6 +1,9 @@
 import mongoose from "mongoose"
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2"
 const resource_permissionSchema = new mongoose.Schema({
+    "key":{
+        type:String,
+    },
     "resource":{
         type:mongoose.Schema.Types.ObjectId,
         "ref":"Resource",

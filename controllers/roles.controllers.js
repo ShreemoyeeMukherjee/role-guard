@@ -2,7 +2,8 @@ import { isValidObjectId } from "mongoose"
 import mongoose from "mongoose"
 import {Role} from "../models/roles.models.js"
 import {error} from  "../utils/error.js"
-import {Key} from "../models/keys.models.js"
+
+import { validateKey } from "../utils/keyValidation.js"
 
 
   // this particular controller handles creation , deletion , retrieval of roles
@@ -10,11 +11,15 @@ import {Key} from "../models/keys.models.js"
 
 const createRole = async(key, role_id)=>{
         
-    const existingKey = await Key.findOne({key:key});
-      if(!existingKey)
+      const result = validateKey(key);
+      if(result == false)
         {
-            throw new error("Key doesnot exist");
+            throw new error("Invalid Key")
         }
+        if(!role_id)
+            {
+                throw new error("Please provide role_id")
+            }
         if(typeof(role_id)!= string)
             {
                 throw new error("Please provide role id as string")
@@ -38,11 +43,15 @@ const createRole = async(key, role_id)=>{
 
 const getRole = async(key, role_id)=>{
 
-    const existingKey = await Key.findOne({key:key});
-    if(!existingKey)
-    {
-        throw new error("Key not found")
-    }
+    const result = validateKey(key);
+      if(result == false)
+        {
+            throw new error("Invalid Key")
+        }
+        if(!role_id)
+            {
+                throw new error("Please provide role_id")
+            }
     if(typeof(role_id)!= string)
         {
             throw new error("Please provide role id as string")
@@ -61,25 +70,30 @@ const getRole = async(key, role_id)=>{
     return(requiredRole);
 }
 
-const deleteRole = async(roleobjectIdString)=>
+const deleteRole = async(key,role_id)=>
         
 {
+    const result = validateKey(key);
+    if(result == false)
+      {
+          throw new error("Invalid Key")
+      }
+      if(!role_id)
+          {
+              throw new error("Please provide role_id")
+          }
 
-
-    if(!isValidObjectId(roleobjectIdString))
-    {
-       throw new error("Please provide a valid MongoDB Object ID")
-    }
+    
     if(typeof(role_id)!= string)
         {
             throw new error("Please provide role id as string")
         }
-    const roletoBeDeleted = await Role.findByIdAndDelete(roleobjectIdString);
+    const roletoBeDeleted = await Role.deleteOne({key:key,role_id:role_id});
       if(!roletoBeDeleted)
       {
-        throw new error("Role not found");
+        throw new error("Role not deleted");
       }
-      console.log("Role deletion successful");
+      return("Role deletion successful");
 }
 
 export{createRole, getRole, deleteRole };

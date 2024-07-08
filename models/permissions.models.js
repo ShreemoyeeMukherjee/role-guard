@@ -1,6 +1,9 @@
 import mongoose from "mongoose"
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2"
 const permissionSchema =  new mongoose.Schema({
+    "key":{
+        type:String,
+    },
     "role_id":{
         type:String,
         ref:"Role"
@@ -22,6 +25,7 @@ const permissionSchema =  new mongoose.Schema({
     "max_duration":{
         type:Number,
     },
+
     
 },
 

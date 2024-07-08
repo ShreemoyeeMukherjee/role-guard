@@ -2,7 +2,8 @@ import { isValidObjectId } from "mongoose"
 import mongoose from "mongoose"
 import {Resource} from "../models/resources.models.js"
 import {error} from  "../utils/error.js"
-import {Key} from "../models/keys.models.js"
+
+import { validateKey } from "../utils/keyValidation.js"
 
 
 //this particular controller handles creation , deletion , retrieval of resource
@@ -10,11 +11,16 @@ import {Key} from "../models/keys.models.js"
 
 
 const createResource = async(key ,resource_id)=>{
-    const existingKey = await Key.findOne({key:key});
-    if(!existingKey)
+        const result = validateKey(key);
+        if(result == false)
+            {
+                throw new error("Invalid Key")
+            }
+        if(!resource_id)
         {
-            throw new error("Key not found")
+            throw new error("Please provide resource_id")
         }
+
         if(typeof(resource_id)!= string)
             {
                 throw new error("Please provide resource id as string")
@@ -36,10 +42,14 @@ const createResource = async(key ,resource_id)=>{
 }
 
 const getResource = async(key, resource_id)=>{
-    const existingKey = await Key.findOne({key:key});
-    if(!existingKey)
+    const result = validateKey(key);
+    if(result == false)
+        {
+            throw new error("Invalid Key")
+        }
+    if(!resource_id)
     {
-        throw new error("Key not found")
+        throw new error("Please provide resource_id")
     }
     if(typeof(resource_id)!= string)
         {
@@ -63,12 +73,19 @@ const getResource = async(key, resource_id)=>{
 const deleteResource= async(key, resource_id)=>
         
 {
-
-    const existingKey = await Key.findOne({key:key});
-    if(!existingKey)
+    const result = validateKey(key);
+    if(result == false)
         {
-            throw new error("Key not found");
+            throw new error("Invalid Key")
         }
+    if(!resource_id)
+    {
+        throw new error("Please provide resource_id")
+    }
+
+     
+     
+     
     
         if(typeof(resource_id)!= string)
             {

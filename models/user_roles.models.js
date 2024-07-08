@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 const user_roleSchema = new mongoose.Schema({
+    "key":{
+        type:String,
+    },
     "user":{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User"

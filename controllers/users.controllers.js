@@ -3,16 +3,23 @@ import mongoose from "mongoose"
 import {User} from "../models/users.models.js"
 import {Key} from "../models/keys.models.js"
 import {error} from  "../utils/error.js"
+import { validateKey } from "../utils/keyValidation.js"
 
 
     
 // creating user 
 const createUser = async(key , user_id)=>{
-      const existingKey = await Key.findOne({key:key});
-      if(!existingKey)
+       const result = validateKey(key);
+       if(result == false)
         {
-            throw new error("Key doesnot exist");
+            throw new error("Invalid Key")
         }
+        if(!user_id)
+            {
+                throw new error("Please provide user_id ");
+            }
+      
+     
         if(typeof(user_id)!= string)
             {
                 throw new error("Please provide user id as string")
@@ -37,11 +44,17 @@ const createUser = async(key , user_id)=>{
 // updation not required because usually user_id is permanent
 const getUser = async(key ,user_id)=>{
 
-    const existingKey = await Key.findOne({key:key});
-    if(!existingKey)
-    {
-        throw new error("Key not found")
-    }
+    const result = validateKey(key);
+       if(result == false)
+        {
+            throw new error("Invalid Key")
+        }
+        if(!user_id)
+            {
+                throw new error("Please provide user_id ");
+            }
+      
+     
     if(typeof(user_id)!= string)
         {
             throw new error("Please provide user id as string")
@@ -64,11 +77,16 @@ const deleteUser = async(key , user_id)=>
         
 {
     // check whether key exists
-    const existingKey = await Key.findOne({key:key});
-    if(!existingKey)
+    const result = validateKey(key);
+       if(result == false)
         {
-            throw new error("Key not found");
+            throw new error("Invalid Key")
         }
+        if(!user_id)
+            {
+                throw new error("Please provide user_id ");
+            }
+      
         if(typeof(user_id)!= string)
             {
                 throw new error("Please provide user id as string")
@@ -84,11 +102,16 @@ const deleteUser = async(key , user_id)=>
 }
 // suspend a user if malpractices found
 const suspendUser = async(key,user_id)=>{
-    const existingKey = await Key.findOne({key:key});
-    if(!existingKey)
-    {
-        throw new error("Key not found")
-    }
+    const result = validateKey(key);
+    if(result == false)
+     {
+         throw new error("Invalid Key")
+     }
+     if(!user_id)
+        {
+            throw new error("Please provide user_id ");
+        }
+  
     if(typeof(user_id)!= string)
         {
             throw new error("Please provide user id as string")
@@ -116,11 +139,16 @@ const suspendUser = async(key,user_id)=>{
 }
 // unsuspend a user
 const unsuspendUser = async(key,user_id)=>{
-    const existingKey = await Key.findOne({key:key});
-    if(!existingKey)
-    {
-        throw new error("Key not found")
-    }
+    const result = validateKey(key);
+    if(result == false)
+     {
+         throw new error("Invalid Key")
+     }
+     if(!user_id)
+         {
+             throw new error("Please provide user_id ");
+         }
+   
     if(typeof(user_id)!= string)
         {
             throw new error("Please provide user id as string")
