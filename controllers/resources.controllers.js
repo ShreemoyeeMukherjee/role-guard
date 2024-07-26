@@ -1,4 +1,4 @@
-import { isValidObjectId } from "mongoose"
+
 import mongoose from "mongoose"
 import {Resource} from "../models/resources.models.js"
 import {error} from  "../utils/error.js"
@@ -21,16 +21,16 @@ const createResource = async(key ,resource_id)=>{
             throw new error("Please provide resource_id")
         }
 
-        if(typeof(resource_id)!= string)
+        if(typeof(resource_id)!= "string")
             {
                 throw new error("Please provide resource id as string")
             }
-    const createdresouce = await Resource.create({
+    const createdresource = await Resource.create({
         key:key,
         resource_id:resource_id,
 
     })
-    if(!createdresouce)
+    if(!createdresource)
         {
             throw new error("Resource creation failed")
         }
@@ -51,7 +51,7 @@ const getResource = async(key, resource_id)=>{
     {
         throw new error("Please provide resource_id")
     }
-    if(typeof(resource_id)!= string)
+    if(typeof(resource_id)!= "string")
         {
             throw new error("Please provide resource id as string")
         }
@@ -60,12 +60,13 @@ const getResource = async(key, resource_id)=>{
             {key:key},
             {resource_id:resource_id},
         ]
-    })
+    },{_id:0})// the mongodb object id of this document is irrelevant to 
+    // the user , hence it is excluded
     if(!requiredResource)
     {
         throw new error("Resource not found");
     }
-    requiredResource._id = undefined;
+    
     return(requiredResource);
      
 }
@@ -87,7 +88,7 @@ const deleteResource= async(key, resource_id)=>
      
      
     
-        if(typeof(resource_id)!= string)
+        if(typeof(resource_id)!= "string")
             {
                 throw new error("Please provide resource id as string")
             }

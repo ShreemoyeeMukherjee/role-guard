@@ -15,6 +15,7 @@ let result = "";
     while(true)
         {
              result =  "";
+             let i = 0;
             for( i = 0;i<9;i++)
                 {
                     let index = Math.floor(Math.random()*n);

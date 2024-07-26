@@ -3,10 +3,10 @@ import {User_role} from "../models/user_roles.models.js"
 import { isValidObjectId } from "mongoose"
 import {User} from "../models/users.models.js"
 import {error} from "../utils/error.js"
-import { getValidObjectId } from "../utils/getObjectId.js"
+
 import {Key} from "../models/keys.models.js"
 import {Role} from "../models/roles.models.js"
-import{User} from "../models/users.models.js"
+
 import { validateKey } from "../utils/keyValidation.js"
 // the key is to be verified in all cases
 // the user of this package may store the key in a seperate variable for ease of use
@@ -25,7 +25,7 @@ const createUserRole = async(key, user_id, role_id)=>{
             {
                 throw new error("Please provide role id")
             }
-    if((typeof(user_id)!= string) ||(typeof(role_id)!= string))
+    if((typeof(user_id)!= "string") ||(typeof(role_id)!= "string"))
         {
             throw new error("Please provide user_id and role_id as string")
         }
@@ -36,9 +36,10 @@ const createUserRole = async(key, user_id, role_id)=>{
             {user_id:user_id}
         ]
     })
+    
     if(!user)
         {
-            throw new error("User doesnot exist");
+            throw new error("User doesnot exists")
         }
     const role = await Role.findOne({
             $and:[
@@ -55,7 +56,7 @@ const createUserRole = async(key, user_id, role_id)=>{
         user_id:user_id,
         role_id:role_id,
     })
-    if(createduserRole)
+    if(!createduserRole)
         {
             throw new error("User role creation failed");
         }
@@ -75,7 +76,7 @@ const get_all_roles_for_user = async(key , user_id)=>
             throw new error("Please provide user id")
         }
    
-    if(typeof(user_id)!= string)
+    if(typeof(user_id)!= "string")
         {
             throw new error("Please provide user_id as string")
         }
@@ -94,6 +95,7 @@ const get_all_roles_for_user = async(key , user_id)=>
             $project:{
                 user_id:1,
                 role_id:1,
+                _id:0,
             }
         }
         
@@ -114,45 +116,58 @@ const  get_all_users_for_role = async(key, role_id)=>{
             {
                 throw new error("Please provide role id")
             }
-    if(typeof(role_id)!= string) 
+    if(typeof(role_id)!= "string") 
         {
             throw new error("Please provide  role_id as string")
         }
     const users_for_role = await User_role.aggregate([
-        {
-            $match:{
-                key:key,
-            }
-        },
-        {
-            $match:{
-                 role_id:role_id,
-            }
-        },
-        {
-            lookup:{
-                from:"users",// details of the users are also to be retrieved
+        
+        [
+            {
+              $match:{
+               key:key,
+              }
+            },
+            {
+              $match:{
+                role_id:role_id,
+              }
+            },
+            
+            {
+              $lookup:{
+                from:"users",
                 localField:"user_id",
-                foreignField:"user_id",
-                as:"user_details",
-            }
-        },
-        {
-            $unwind:{
+                foreignField :"user_id",
+                as:"user_details"
+              }
+            },
+            
+            {
+              $unwind:{
                 path:"$user_details"
-            }
-        },
-        {
-            $project:{
+                
+              }
+            },
+            {
+              $match:{
+                "user_details.key":key,
+              }
+            },
+            {
+              $project:{
                 role_id:1,
                 user_id:1,
-                user_details:1,
+                "user_details.isSuspended":1,
+                _id:0,
+              }
             }
-        }
+              
+          ]
     ])
     return(users_for_role);
 }
-const deleteUser_role = async(key , user_id, role_id)=>{
+const deleteUserRole = async(key , user_id, role_id)=>{
     const result = validateKey(key);
 
     if(result == false)
@@ -168,7 +183,7 @@ const deleteUser_role = async(key , user_id, role_id)=>{
                 throw new error("Please provide role id")
             }
    
-    if((typeof(user_id)!= string) ||(typeof(role_id)!= string))
+    if((typeof(user_id)!= "string") ||(typeof(role_id)!= "string"))
         {
             throw new error("Please provide user_id and role_id as string")
         }
@@ -184,7 +199,7 @@ const deleteUser_role = async(key , user_id, role_id)=>{
     return("User deletion successful");
 
 }
-export{createUserRole,get_all_roles_for_user,get_all_users_for_role,deleteUser_role };
+export{createUserRole,get_all_roles_for_user,get_all_users_for_role,deleteUserRole };
 
 
 

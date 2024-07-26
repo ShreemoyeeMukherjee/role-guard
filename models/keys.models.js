@@ -8,5 +8,5 @@ const keySchema = new mongoose.Schema({
 {
    timestamps:true,
 })
-const Key = mongoose.model("Key",idSchema);
-export{key};
+const Key = mongoose.model("Key",keySchema);
+export{Key};

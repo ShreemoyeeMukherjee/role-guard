@@ -1,4 +1,4 @@
-import { isValidObjectId } from "mongoose"
+
 import mongoose from "mongoose"
 import {Role} from "../models/roles.models.js"
 import {error} from  "../utils/error.js"
@@ -7,7 +7,7 @@ import { validateKey } from "../utils/keyValidation.js"
 
 
   // this particular controller handles creation , deletion , retrieval of roles
-  // Updation not required as only role_id is stored  
+  // Updation not required as only role_id is stored  and is usually permanent
 
 const createRole = async(key, role_id)=>{
         
@@ -20,14 +20,14 @@ const createRole = async(key, role_id)=>{
             {
                 throw new error("Please provide role_id")
             }
-        if(typeof(role_id)!= string)
+        if(typeof(role_id)!= "string")
             {
                 throw new error("Please provide role id as string")
             }
         
    
     
-        const newRole = await User.create({
+        const newRole = await Role.create({
             key:key,
             role_id :role_id,
            
@@ -52,7 +52,7 @@ const getRole = async(key, role_id)=>{
             {
                 throw new error("Please provide role_id")
             }
-    if(typeof(role_id)!= string)
+    if(typeof(role_id)!= "string")
         {
             throw new error("Please provide role id as string")
         }
@@ -61,12 +61,14 @@ const getRole = async(key, role_id)=>{
             {key:key},
             {role_id:role_id},
         ]
-    })
+
+    },{_id:0})// the mongodb object id of this document is irrelevant to 
+              // the user , hence it is excluded
     if(!requiredRole)
     {
         throw new error("Role not found");
     }
-    requiredRole._id = undefined;
+    
     return(requiredRole);
 }
 
@@ -84,14 +86,14 @@ const deleteRole = async(key,role_id)=>
           }
 
     
-    if(typeof(role_id)!= string)
+    if(typeof(role_id)!= "string")
         {
             throw new error("Please provide role id as string")
         }
     const roletoBeDeleted = await Role.deleteOne({key:key,role_id:role_id});
       if(!roletoBeDeleted)
       {
-        throw new error("Role not deleted");
+        throw new error("Error in role deletion");
       }
       return("Role deletion successful");
 }

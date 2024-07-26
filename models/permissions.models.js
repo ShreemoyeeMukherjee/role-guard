@@ -9,6 +9,9 @@ const permissionSchema =  new mongoose.Schema({
         ref:"Role"
 
     },
+    "permission_id":{
+        type:String,
+    },
     "resource_id":{
         type:String,
         ref:"Resource"

@@ -21,13 +21,13 @@ const canAccess = async(key, user_id,resource_id)=>{
         {
             throw new error("Please provide resource_id");
         }
-    if(typeof(user_id) != String)
+    if(typeof(user_id) != "string")
         {
             throw new error("Please provide user_id as string")
         }
-    if(typeof(resource_id)!= string)
+    if(typeof(resource_id)!= "string")
         {
-            throw new error("Please provide role_id as string")
+            throw new error("Please provide resource_id as string")
         }
     const resource = await Resource.findOne({
         $and:[
@@ -35,7 +35,7 @@ const canAccess = async(key, user_id,resource_id)=>{
             {resource_id :resource_id},
         ]
     })
-    // the below steps are required because if user_id or resource_id is incorrect 
+    // the following steps are required because if user_id or resource_id is incorrect 
     // the match stage will not provide with any documents
     // we may end up logging this entry as unauthorized access
 
@@ -46,7 +46,7 @@ const canAccess = async(key, user_id,resource_id)=>{
     const user  = await User.findOne({
         $and:[
             {key:key},
-            {resource_id:resource_id}
+            {user_id:user_id}
         ]
     })
     if(!user)
@@ -78,9 +78,11 @@ const canAccess = async(key, user_id,resource_id)=>{
                 path:"$allowed_users",
             }
         },
+        
         {
             $match:{
-                "$allowed_users.user_id"  :user_id,
+                "allowed_users.key":key,
+                "allowed_users.user_id"  :user_id,
             }
         },
         {
@@ -94,19 +96,28 @@ const canAccess = async(key, user_id,resource_id)=>{
         },
         {
             $unwind:{
-                "path":"user_details"
+                "path":"$user_details",
             }
         },
+        
         {
             $match:{
-                "user_details.isSuspended":false,
+                "user_details.key":key,
+                "user_details.isSuspended":false,// suspended users cannot access resources
             }
         },
         
     ])
-    const n = authorizedusers.length();
+    
+    const n = authorizedusers.length;
+   
     const current_date = Date.now();
-     let c = 0;
+    const today = new Date();
+    const day_in_int = today.getDay();// day in terms of integer
+    
+     
+     let i = 0;
+     let  count = 0;
      let allowed_duration = 0;
      // there can be more than 1 document if an user has multiple roles
      // for allowed_duration we take maximum_duration of all 
@@ -117,21 +128,31 @@ const canAccess = async(key, user_id,resource_id)=>{
                const end_time = result_object.end_time;
                const start_date = getDate(start_time);
                const end_date = getDate(end_time);
-               if(current_date>=start_date && current_date<end_date)
+               const days  = result_object.days;
+               // checks whether the user wants to access the document on a valid date and within valid timings or not
+               // day_in_int-1 is used as getDay returns a 1-indexed mapping ie Monday is mapped to 1 instead of 0
+               if(current_date>=start_date && current_date<end_date && days[day_in_int-1] == true )
                 {
-                    c++;
-                    allowed_duration = max(allowed_duration,result_object.max_duration)
+                    count = count+1;
+                    if(allowed_duration< result_object.max_duration)
+                    {
+                        allowed_duration = result_object.max_duration;
+                    }
                 }
 
         }
-    if(c!= 0) // atleast a single document is found
+        
+       
+    if(count> 0) // atleast a single document is found where day ,start and end time is valid
         {
             
+            
             const message = await notifyUser(user_id,resource_id, allowed_duration);
+            
             return(message);
             
               
-        }
+    }
         else // user not allowed;
     {
            const message  = "Access denied";
@@ -142,12 +163,14 @@ const canAccess = async(key, user_id,resource_id)=>{
                 {resource_id:resource_id}
             ]
            })
-           if(existing_log)
+          
+           if(existing_log)  // update the last accessed time
             {
+                
                 let count = existing_log.count;
                 count = count+1;
                 existing_log.count = count;
-                existing_log.lastUpdationTime = current_date;
+                existing_log.lastAccessedTime = current_date;
                 const updated_log = await existing_log.save();
             }
             else{
@@ -156,11 +179,18 @@ const canAccess = async(key, user_id,resource_id)=>{
                user_id:user_id,
                resource_id:resource_id,
                count:1,
-               lastUpdationTime:current_date,
+               lastAccessedTime:current_date,
+               
                
            })
-           return(message);
+          
+           if(!new_log)
+            {
+             throw new error("log deletion failed");
+            }
+           
         }
+        return(message);
     }
 
 }

@@ -1,4 +1,4 @@
-import { isValidObjectId } from "mongoose"
+
 import mongoose from "mongoose"
 import {User} from "../models/users.models.js"
 import {Key} from "../models/keys.models.js"
@@ -12,7 +12,7 @@ const createUser = async(key , user_id)=>{
        const result = validateKey(key);
        if(result == false)
         {
-            throw new error("Invalid Key")
+            throw new error("Invalid Key");
         }
         if(!user_id)
             {
@@ -20,7 +20,7 @@ const createUser = async(key , user_id)=>{
             }
       
      
-        if(typeof(user_id)!= string)
+        if(typeof(user_id)!= "string")
             {
                 throw new error("Please provide user id as string")
             }
@@ -42,6 +42,7 @@ const createUser = async(key , user_id)=>{
 
 }
 // updation not required because usually user_id is permanent
+//fetching  a user
 const getUser = async(key ,user_id)=>{
 
     const result = validateKey(key);
@@ -55,7 +56,7 @@ const getUser = async(key ,user_id)=>{
             }
       
      
-    if(typeof(user_id)!= string)
+    if(typeof(user_id)!= "string")
         {
             throw new error("Please provide user id as string")
         }
@@ -64,12 +65,14 @@ const getUser = async(key ,user_id)=>{
             {key:key},
             {user_id:user_id},
         ]
-    })
+    },{_id:0}) // the mongodb object id of this document is irrelevant
+                // to the user , hence it is excluded
     if(!requiredUser)
     {
         throw new error("User not found");
     }
-    requiredUser._id = undefined;
+    
+
     return(requiredUser);
 }
 
@@ -87,7 +90,7 @@ const deleteUser = async(key , user_id)=>
                 throw new error("Please provide user_id ");
             }
       
-        if(typeof(user_id)!= string)
+        if(typeof(user_id)!= "string")
             {
                 throw new error("Please provide user id as string")
             }
@@ -100,7 +103,7 @@ const deleteUser = async(key , user_id)=>
 
 
 }
-// suspend a user if malpractices found
+// suspend a user if  any malpractice is found
 const suspendUser = async(key,user_id)=>{
     const result = validateKey(key);
     if(result == false)
@@ -112,7 +115,7 @@ const suspendUser = async(key,user_id)=>{
             throw new error("Please provide user_id ");
         }
   
-    if(typeof(user_id)!= string)
+    if(typeof(user_id)!= "string")
         {
             throw new error("Please provide user id as string")
         }
@@ -149,7 +152,7 @@ const unsuspendUser = async(key,user_id)=>{
              throw new error("Please provide user_id ");
          }
    
-    if(typeof(user_id)!= string)
+    if(typeof(user_id)!= "string")
         {
             throw new error("Please provide user id as string")
         }

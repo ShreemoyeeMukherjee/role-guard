@@ -26,11 +26,6 @@ export{connectDB};
 
 
 
-// import dotenv from "dotenv";
-// import mongoose from "mongoose";
-// dotenv.config();
-// console.log(process.env.m);
-// const a = 10;
-// export { a };
+
 
 

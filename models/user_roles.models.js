@@ -4,12 +4,12 @@ const user_roleSchema = new mongoose.Schema({
     "key":{
         type:String,
     },
-    "user":{
-        type:mongoose.Schema.Types.ObjectId,
+    "user_id":{
+        type:String,
         ref:"User"
     },
-    "role":{
-        type:mongoose.Schema.Types.ObjectId,
+    "role_id":{
+        type:String,
         ref:"Role"
     }
     

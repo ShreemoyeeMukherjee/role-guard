@@ -16,10 +16,10 @@ const unauthorizedaccessSchema = new mongoose.Schema({
         type:Number,
             
         },
-    "lastUpdationTime":{
+    "lastAccessedTime":{
         type:Date,
         default:Date.now(),
-        expires:7776000 // 3 months
+        expires:7776000 // 3 months in seconds
 
     }
     

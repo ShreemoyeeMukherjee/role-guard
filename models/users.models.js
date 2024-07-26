@@ -3,6 +3,7 @@ import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2"
 const  userSchema = new mongoose.Schema({
     "key":{
         type:String,
+        ref:"keys",
     },
     "user_id":{
         type:String,

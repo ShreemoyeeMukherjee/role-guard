@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { isValidObjectId } from "mongoose";
+
 import {Permission} from "../models/permissions.models.js"
 import {error} from "../utils/error.js"
 import { isValidTime } from "../utils/isValidTime.js";
@@ -22,8 +22,8 @@ const  createPermission = async(key,creationObject)=>{
     const start_time = creationObject.start_time;
     const end_time = creationObject.end_time;
     const max_duration = creationObject.max_duration;
-     const role_id = creationObject.role;
-     const resource_id= creationObject.resource
+     const role_id = creationObject.role_id;
+     const resource_id= creationObject.resource_id;
 
     if(! permission_id ||  !days || !start_time || !end_time|| !role_id||!resource_id)
     {
@@ -42,7 +42,7 @@ const  createPermission = async(key,creationObject)=>{
       const firstElement = days[0];
       // since array contains elements of same type , checking first 
       // element would suffice
-      if(typeof(firstElement)  != 'boolean') 
+      if(typeof(firstElement)  != "boolean") 
       {
         throw new error("Please provide an boolean array")
       }
@@ -60,7 +60,7 @@ const  createPermission = async(key,creationObject)=>{
     })
     if(!resource)
         {
-            throw new error("User doesnot exist");
+            throw new error("Resource doesnot exist");
         }
     const role = await Role.findOne({
             $and:[
@@ -76,6 +76,7 @@ const  createPermission = async(key,creationObject)=>{
     
     
     const newPermission = await Permission.create({
+        key:key,
         permission_id :permission_id,
         days:days,
         start_time:start_time,
@@ -89,8 +90,8 @@ const  createPermission = async(key,creationObject)=>{
     {
         throw new error("Permission is not created");
     }
-    newPermission._id = undefined;
-    return(newPermission);
+    
+    return("Permission created successfully");
 
 
 }
@@ -105,7 +106,7 @@ const getPermission = async(key,permission_id)=>{
         {
             throw new error("Please provide permission id")
         }
-    if(typeof(permission_id)!= string)
+    if(typeof(permission_id)!= "string")
     {
         throw new error("Please provide permission id as string")
     }
@@ -115,13 +116,17 @@ const getPermission = async(key,permission_id)=>{
                 {key:key},
                 {permission_id:permission_id},
             ]
+        },
+        {
+            _id:0,
         }
     );
+    console.log(requiredPermission);
     if(!requiredPermission)
     {
         throw new error("Permission not found");
     }
-    requiredPermission._id=  undefined;
+   
     return(requiredPermission);
 
 }
@@ -139,7 +144,7 @@ const updatePermission = async(key,permission_id,updationObject)=>{
         {
             throw new error("Please provide permission id")
         }
-    if(typeof(permission_id)!= string)
+    if(typeof(permission_id)!= "string")
     {
         throw new error("Please provide permission id as string")
     }
@@ -187,7 +192,7 @@ const updatePermission = async(key,permission_id,updationObject)=>{
     // the next two if conditions is for any one of them is to be updated
     // in that case the other one is to be retreived and the validity is to be 
     // checked
-    if(start_time)
+    if(start_time && !end_time)
     {
         const saved_end_time = permissionToBeUpdated.end_time;
         if(!isValidTime(start_time , saved_end_time))
@@ -196,7 +201,7 @@ const updatePermission = async(key,permission_id,updationObject)=>{
         }
         permissionToBeUpdated.start_time = start_time;
     }
-    if(end_time)
+    if(end_time && !start_time)
     {
         const saved_start_time = permissionToBeUpdated.start_time;
         if(!isValidTime(saved_start_time , end_time))
@@ -210,7 +215,7 @@ const updatePermission = async(key,permission_id,updationObject)=>{
     //only if all consditons are satisfied, updation is allowed
   if(role_id)
     {
-        if(typeof(role_id)!=string)
+        if(typeof(role_id)!="string")
             {
                 throw new error("Please provide role_id as string")
             }
@@ -228,7 +233,7 @@ const updatePermission = async(key,permission_id,updationObject)=>{
     }
     if(resource_id)
         {
-            if(typeof(resource_id)!=string)
+            if(typeof(resource_id)!="string")
                 {
                     throw new error("Please provide role_id as string")
                 }
@@ -246,13 +251,22 @@ const updatePermission = async(key,permission_id,updationObject)=>{
         }
     if(max_duration)
         {
+            
+            if(typeof(max_duration) != "number")
+            {
+                throw new error("Please provide maxduration in seconds")
+            }
             permissionToBeUpdated.max_duration = max_duration;
         }
     
     const updatedPermission = await permissionToBeUpdated.save();
-    console.log("Permission updation successful")
+    if(!updatedPermission)
+    {
+        throw new error("Permission updation failed");
+    }
+    return("Permission updation successful");
     
-    return(updatedPermission);
+    
 }
 const deletePermission = async(key , permission_id)=>
         
