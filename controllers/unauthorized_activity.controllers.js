@@ -15,7 +15,7 @@ const getUnauthorizedActivityofUser = async(key,user_id)=>{
         {
             throw new error("Please provide user id");
         }
-        if(typeof(user_id)!= String)
+        if(typeof(user_id)!= "string")
             {
                 throw new error("Please provide user_id as string")
             }
@@ -50,11 +50,33 @@ const getUnauthorizedActivityofUser = async(key,user_id)=>{
                     as:"user_details",
                 }
             },
+        
             {
                 $unwind:{
                     path:"$user_details",
                 }
+            },
+            {
+                $match:{
+                    "user_details.key":key,
+                }
+            },
+            {
+                $project:{
+                    _id:0,
+                    key:1,
+                    resource_id:1,
+                    count:1,
+                    user_id:1,
+                    "user_details.isSuspended":1,
+                    // the timezone used here is Universal Coordinated Timezone (UTC)
+                    lastAccessedAt:{$dateToString:{format:"%Y-%m-%d %H:%M:%S",date:"$lastAccessedTime"}}
+
+
+                }
             }
+
+
         ])
         return(all_unauthorized_activities);
     

@@ -6,7 +6,7 @@ import { error } from "../utils/error.js"
 import { Resource } from "../models/resources.models.js"
 import { User } from "../models/users.models.js"
 import { getDate } from "../utils/getDate.js"
-import { notifyUser } from "../utils/notify.js"
+
 const canAccess = async(key, user_id,resource_id)=>{
     const result = validateKey(key);
     if(result == false)
@@ -147,15 +147,15 @@ const canAccess = async(key, user_id,resource_id)=>{
         {
             
             
-            const message = await notifyUser(user_id,resource_id, allowed_duration);
-            
+            const message = `Access to resource having id  ${resource_id} granted to user having ${user_id} for a maximum time duration of ${allowed_duration}`;
+
             return(message);
             
               
     }
         else // user not allowed;
     {
-           const message  = "Access denied";
+           const message  = `Access denied to user having ${user_id} wanting to use  resource having ${resource_id}` ;
            const existing_log = await Unauthorizedaccess.findOne({
             $and:[
                 {key:key},

@@ -6,6 +6,8 @@ import { User_role } from "../models/user_roles.models.js"
 import {error} from "../utils/error.js"
 import {Resource} from "../models/resources.models.js"
 import {key_creation_characters} from "../constants.js"
+import { Unauthorizedaccess } from "../models/unauthorized_access.models.js"
+import { validateKey } from "../utils/keyValidation.js"
 // generate unique key for each user who installs the package for easy identification
 // of data for that particular user
 const createKey = async()=>{
@@ -37,18 +39,29 @@ let result = "";
 // when user wants  his/her key , it is assumed he/she wants to uninstall the
 //package , so all data with that specified key is deleted
 const deleteKey = async(key)=>{
-    const existingKey = await Key.findOne({key:key});
-    if(!existingKey)
-        {
-            throw new error("Key not found")
-        }
+    const result = validateKey(key);
+    if(result == false)
+    {
+        throw new error("Invalid Key");
+    }
     const deleteuserwithKey = await User.deleteMany({key:key});
     const deleterolewithKey = await Role.deleteMany({key:key});
     const deleteuserrolewithKey = await User_role.deleteMany({key:key});
     const deletepermissionwithKey = await Permission.deleteMany({key:key});
     const deleteresourcewithKey = await Resource.deleteMany({key:key});
-    const deletekeywithkey = await Key.deleteOne({key:key});
+    const deleteunauthorizedactivitywithKey = await Unauthorizedaccess.deleteMany({key:key})
+    const deletekeywithKey = await Key.deleteOne({key:key});
+    // only check for deletekeywithKey is being done because the package user
+    // might not have created all other documents like user ,role etc
 
+     if(deletekeywithKey)
+     {
+        return("Key deletion successful");
+     }
+     else
+     {
+        throw new error("Key deletion failed");
+     }
 
 
 }

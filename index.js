@@ -6,11 +6,12 @@ import {createRole , getRole , deleteRole} from "../package/controllers/roles.co
 import{createResource, getResource, deleteResource } from "../package/controllers/resources.controllers.js"
 import{createPermission, getPermission,deletePermission,updatePermission} from "../package/controllers/permissions.controllers.js"
 import{createUserRole,get_all_roles_for_user,get_all_users_for_role,deleteUserRole} from "../package/controllers/users_roles.controllers.js"
-import { createKey } from "./controllers/keys.controllers.js"
-import dotenv from "dotenv"
+import { createKey ,deleteKey} from "./controllers/keys.controllers.js"
+
 import {error} from "../package/utils/error.js"
 import { canAccess } from "./controllers/access.controllers.js"
-dotenv.config();
+import { getUnauthorizedActivityofUser } from "./controllers/unauthorized_activity.controllers.js"
+
 
 try{
   await connectDB();
@@ -24,13 +25,14 @@ catch(err)
     throw new error("Database connection failed");
 }
 
-export{createKey};
+export{createKey,deleteKey};
 export{createUser ,getUser,deleteUser, suspendUser,unsuspendUser};
 export{createRole,getRole,deleteRole};
 export{createResource, getResource,deleteResource };
 export{createPermission, getPermission, deletePermission,updatePermission};
 export{createUserRole,get_all_roles_for_user,get_all_users_for_role,deleteUserRole}
 export{canAccess};
+export{getUnauthorizedActivityofUser};
 
 
 
