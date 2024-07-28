@@ -14,7 +14,7 @@
   To install  write the following command in the terminal  
   `npm i role-guard `
    To use this package , first create an access key which will
-   uniquely identifies your  resources
+   uniquely identify your  resources
    ```
        import {createKey} from "role-guard"
       try{
