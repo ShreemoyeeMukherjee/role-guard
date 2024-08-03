@@ -13,7 +13,7 @@
 ## Usage
   To install  write the following command in the terminal  
   `npm i role-guard `
-<<<<<<< HEAD
+
    It is recommended to wrap the all the function in a try-catch block
    The following example shows how to use any function of the package
    ```
@@ -28,12 +28,10 @@
        }
 
   ````
-  To use this package , first create an access key which will
-   uniquely identifies your  resources
-=======
+ 
    To use this package , first create an access key which will
    uniquely identify your  resources
->>>>>>> 395d3cbbe9f1f6328930ef13747182910e253560
+
    ```
        import * as roleg from "role-guard"
        try
